@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TaskMitra — Apna Kaam, Apna Saathi</title>
+<meta name="theme-color" content="#1F6F5C">
+<style>
+  :root{
+    --paper:#FBF7F0;
+    --ink:#1B2B29;
+    --teal:#1F6F5C;
+    --teal-deep:#123F35;
+    --coral:#E8623D;
+    --gold:#E3A542;
+    --line:#E1D9C8;
+    --card:#FFFFFF;
+    --muted:#7C8A85;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:100px;
+  }
+  header{
+    background:linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
+    color:white;
+    padding:28px 20px 34px;
+    border-radius:0 0 28px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    right:-40px; top:-40px;
+    width:140px; height:140px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.06);
+  }
+  .brand{
+    font-size:26px;
+    font-weight:700;
+    letter-spacing:0.3px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand .flame{color:var(--gold); font-size:24px;}
+  .tagline{font-size:13px; opacity:0.85; margin-top:4px; font-weight:300;}
+
+  .stats-row{
+    display:flex; gap:12px; margin-top:20px;
+  }
+  .stat-box{
+    flex:1;
+    background:rgba(255,255,255,0.12);
+    border-radius:14px;
+    padding:12px 14px;
+    backdrop-filter:blur(4px);
+  }
+  .stat-num{font-size:20px; font-weight:700;}
+  .stat-label{font-size:11px; opacity:0.8; margin-top:2px;}
+
+  .progress-wrap{margin-top:16px;}
+  .progress-bar-bg{
+    background:rgba(255,255,255,0.2);
+    height:8px;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    background:var(--gold);
+    border-radius:6px;
+    transition:width 0.4s ease;
+    width:0%;
+  }
+  .progress-text{font-size:11px; margin-top:6px; opacity:0.85;}
+
+  main{padding:18px 16px;}
+
+  .add-card{
+    background:var(--card);
+    border-radius:18px;
+    padding:16px;
+    box-shadow:0 4px 18px rgba(27,43,41,0.08);
+    margin-top:-24px;
+    position:relative;
+    z-index:5;
+  }
+  .add-card input[type=text]{
+    width:100%;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:15px;
+    outline:none;
+    color:var(--ink);
+  }
+  .add-card input[type=text]:focus{border-color:var(--teal);}
+
+  .row-fields{
+    display:flex; gap:8px; margin-top:10px;
+  }
+  .row-fields select, .row-fields input[type=date]{
+    flex:1;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:9px 8px;
+    font-size:13px;
+    color:var(--ink);
+    background:white;
+  }
+  .add-btn{
+    width:100%;
+    margin-top:12px;
+    background:var(--coral);
+    color:white;
+    border:none;
+    border-radius:12px;
+    padding:13px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .add-btn:active{transform:scale(0.98);}
+
+  .filters{
+    display:flex; gap:8px; margin:18px 0 12px;
+  }
+  .filter-chip{
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:13px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--muted);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .filter-chip.active{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:white;
+  }
+
+  .task-list{display:flex; flex-direction:column; gap:10px;}
+
+  .task-card{
+    background:var(--card);
+    border-radius:14px;
+    padding:14px;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    box-shadow:0 2px 8px rgba(27,43,41,0.05);
+    border-left:4px solid var(--teal);
+  }
+  .task-card.priority-high{border-left-color:var(--coral);}
+  .task-card.priority-medium{border-left-color:var(--gold);}
+  .task-card.priority-low{border-left-color:var(--teal);}
+  .task-card.done{opacity:0.55;}
+  .task-card.done .task-title{text-decoration:line-through;}
+
+  .checkbox{
+    width:24px; height:24px;
+    border-radius:50%;
+    border:2px solid var(--teal);
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:14px;
+    color:transparent;
+    margin-top:2px;
+  }
+  .checkbox.checked{
+    background:var(--teal);
+    color:white;
+  }
+
+  .task-body{flex:1; min-width:0;}
+  .task-title{font-size:15px; font-weight:600; word-break:break-word;}
+  .task-meta{
+    display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;
+  }
+  .badge{
+    font-size:11px;
+    padding:3px 8px;
+    border-radius:8px;
+    background:var(--paper);
+    color:var(--muted);
+    font-weight:500;
+  }
+  .delete-btn{
+    background:none; border:none; color:var(--muted);
+    font-size:18px; cursor:pointer; padding:2px 6px;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--muted);
+  }
+  .empty-state .big-emoji{font-size:40px; margin-bottom:10px;}
+
+  .ad-slot{
+    margin:22px 0 8px;
+    background:var(--card);
+    border:1.5px dashed var(--line);
+    border-radius:14px;
+    padding:16px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--muted);
+    padding:14px;
+  }
+
+  @media(prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="flame">◆</span> TaskMitra</div>
+  <div class="tagline">Apna Kaam, Apna Saathi</div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-num" id="pendingCount">0</div>
+      <div class="stat-label">Baaki Kaam</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="doneCount">0</div>
+      <div class="stat-label">Poore Hue</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="streakCount">0</div>
+      <div class="stat-label">Din Streak</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">Aaj ka progress: 0%</div>
+  </div>
+</header>
+
+<main>
+  <div class="add-card">
+    <input type="text" id="taskInput" placeholder="Naya kaam likhein... (jaise: Bill bharna hai)">
+    <div class="row-fields">
+      <select id="categorySelect">
+        <option value="Kaam">💼 Kaam</option>
+        <option value="Ghar">🏠 Ghar</option>
+        <option value="Padhai">📚 Padhai</option>
+        <option value="Health">💪 Health</option>
+        <option value="Other">📌 Other</option>
+      </select>
+      <select id="prioritySelect">
+        <option value="low">Low Priority</option>
+        <option value="medium" selected>Medium Priority</option>
+        <option value="high">High Priority</option>
+      </select>
+    </div>
+    <input type="date" id="dueDate" style="margin-top:10px; width:100%;">
+    <button class="add-btn" id="addBtn">+ Kaam Jodein</button>
+  </div>
+
+  <div class="filters">
+    <div class="filter-chip active" data-filter="all">Sab</div>
+    <div class="filter-chip" data-filter="pending">Baaki</div>
+    <div class="filter-chip" data-filter="done">Poore Hue</div>
+  </div>
+
+  <div class="task-list" id="taskList"></div>
+
+  <!-- ============================================================
+       GOOGLE ADSENSE AD SLOT
+       Google AdSense laga kar paisa kamaane ke liye neeche
+       instructions follow karein (niche chat message mein di gayi hain).
+       Jab aapka AdSense account approve ho jaye, ye placeholder
+       <div> hata kar Google se mila hua <ins class="adsbygoogle">
+       code yahan paste karein.
+       ============================================================ -->
+  <div class="ad-slot" id="adSlot">
+    📢 Ad Space — yahan Google AdSense/AdMob ka ad dikhega jab account approve ho jayega
+  </div>
+
+</main>
+
+<footer>Made with TaskMitra • Aapka data sirf aapke phone mein save hai</footer>
+
+<script>
+  const STORAGE_KEY = 'taskmitra_tasks';
+  const STREAK_KEY = 'taskmitra_streak';
+  const LASTOPEN_KEY = 'taskmitra_lastopen';
+
+  let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let currentFilter = 'all';
+
+  function saveTasks(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  }
+
+  function updateStreak(){
+    const today = new Date().toDateString();
+    const lastOpen = localStorage.getItem(LASTOPEN_KEY);
+    let streak = parseInt(localStorage.getItem(STREAK_KEY) || '0');
+
+    if(lastOpen !== today){
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      if(lastOpen === yesterday){
+        streak += 1;
+      } else if(lastOpen !== null){
+        streak = 1;
+      } else {
+        streak = 1;
+      }
+      localStorage.setItem(STREAK_KEY, streak);
+      localStorage.setItem(LASTOPEN_KEY, today);
+    }
+    document.getElementById('streakCount').textContent = streak;
+  }
+
+  function addTask(){
+    const input = document.getElementById('taskInput');
+    const category = document.getElementById('categorySelect').value;
+    const priority = document.getElementById('prioritySelect').value;
+    const due = document.getElementById('dueDate').value;
+
+    const title = input.value.trim();
+    if(!title){
+      input.focus();
+      return;
+    }
+
+    tasks.unshift({
+      id: Date.now(),
+      title,
+      category,
+      priority,
+      due,
+      done:false
+    });
+
+    input.value='';
+    document.getElementById('dueDate').value='';
+    saveTasks();
+    render();
+  }
+
+  function toggleDone(id){
+    const t = tasks.find(x=>x.id===id);
+    if(t) t.done = !t.done;
+    saveTasks();
+    render();
+  }
+
+  function deleteTask(id){
+    tasks = tasks.filter(x=>x.id!==id);
+    saveTasks();
+    render();
+  }
+
+  function categoryEmoji(cat){
+    return {Kaam:'💼',Ghar:'🏠',Padhai:'📚',Health:'💪',Other:'📌'}[cat] || '📌';
+  }
+
+  function formatDate(d){
+    if(!d) return '';
+    const dt = new Date(d);
+    return dt.toLocaleDateString('hi-IN',{day:'numeric', month:'short'});
+  }
+
+  function render(){
+    const list = document.getElementById('taskList');
+    let filtered = tasks;
+    if(currentFilter==='pending') filtered = tasks.filter(t=>!t.done);
+    if(currentFilter==='done') filtered = tasks.filter(t=>t.done);
+
+    if(filtered.length===0){
+      list.innerHTML = `<div class="empty-state"><div class="big-emoji">📝</div>Koi kaam nahi mila.<br>Naya kaam jodein!</div>`;
+    } else {
+      list.innerHTML = filtered.map(t => `
+        <div class="task-card priority-${t.priority} ${t.done?'done':''}">
+          <div class="checkbox ${t.done?'checked':''}" onclick="toggleDone(${t.id})">${t.done?'✓':''}</div>
+          <div class="task-body">
+            <div class="task-title">${escapeHtml(t.title)}</div>
+            <div class="task-meta">
+              <span class="badge">${categoryEmoji(t.category)} ${t.category}</span>
+              ${t.due? `<span class="badge">📅 ${formatDate(t.due)}</span>`:''}
+            </div>
+          </div>
+          <button class="delete-btn" onclick="deleteTask(${t.id})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    const done = tasks.filter(t=>t.done).length;
+    const pending = tasks.filter(t=>!t.done).length;
+    document.getElementById('doneCount').textContent = done;
+    document.getElementById('pendingCount').textContent = pending;
+
+    const total = tasks.length;
+    const pct = total===0?0:Math.round((done/total)*100);
+    document.getElementById('progressFill').style.width = pct+'%';
+    document.getElementById('progressText').textContent = `Aaj ka progress: ${pct}%`;
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  document.getElementById('addBtn').addEventListener('click', addTask);
+  document.getElementById('taskInput').addEventListener('keypress', (e)=>{
+    if(e.key==='Enter') addTask();
+  });
+
+  document.querySelectorAll('.filter-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      render();
+    });
+  });
+
+  updateStreak();
+  render();
+</script>
+
+</body>
+</html>
